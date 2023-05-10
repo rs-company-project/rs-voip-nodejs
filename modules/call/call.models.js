@@ -4,6 +4,8 @@ const fs = require('fs');
 const pcm = require('pcm');
 const wav = require('wav');
 
+const { sleep } = require("../../utils/functions");
+
 class Call {
   constructor() {
 
@@ -17,6 +19,7 @@ class Call {
           resolve(response);
         });
       } catch (error) {
+        console.log("error", error, "error");
         reject(error);
       }
     })
@@ -25,7 +28,7 @@ class Call {
   readAudio() {
     return new Promise((resolve, reject) => {
       try {
-        const inputFile = './test.wav';
+        const inputFile = './teste2.wav';
 
         // Crie um leitor de arquivos .wav
         const file = fs.createReadStream(inputFile);
@@ -34,6 +37,7 @@ class Call {
         // Assim que o leitor de wav estiver pronto, nós podemos ler os dados PCM
         reader.on('format', (format) => {
           // Vamos dividir os dados de áudio em pedaços de 1 segundo
+          let index = 0;
           const bytesPerSample = format.bitDepth / 8;
           const samplesPerSecond = format.sampleRate;
           const chunkSize = bytesPerSample * samplesPerSecond * format.channels;
@@ -45,20 +49,23 @@ class Call {
             chunk = Buffer.concat([chunk, data]);
 
             while (chunk.length >= chunkSize) {
+              index++;
               // Corte o primeiro segundo de áudio
               const oneSecond = chunk.slice(0, chunkSize);
               chunk = chunk.slice(chunkSize);
 
               // Aqui você tem um segundo de áudio em PCM
-              console.log(oneSecond);
-              RSSocket.emit("microphone_buffer", oneSecond);
+              setTimeout(() => {
+                console.log(oneSecond, samplesPerSecond, format.sampleRate, format.channels);
+                RSSocket.emit("audiofile_buffer", oneSecond, samplesPerSecond, format.channels);
+              }, 900 * index)
             }
           });
 
           reader.on('end', () => {
             // Quando terminar de ler o arquivo, lide com qualquer áudio restante
             if (chunk.length > 0) {
-              console.log(chunk, "chunk");
+              // console.log(chunk, "chunk");
             }
           });
         });
