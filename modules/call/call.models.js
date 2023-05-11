@@ -8,15 +8,20 @@ const { sleep } = require("../../utils/functions");
 
 class Call {
   constructor() {
-
+    this.isStarted = false;
   }
 
   startCall(whatsappid) {
     return new Promise((resolve, reject) => {
       try {
         RSSocket.emit("calls:start", whatsappid, (response) => {
-          this.readAudio();
           resolve(response);
+        });
+
+        RSSocket.on("call_ev", (data) => {
+          if(data?.event === 16 && data?.eventData?.call_state === 6) {
+            this.readAudio();
+          }
         });
       } catch (error) {
         console.log("error", error, "error");
@@ -28,7 +33,14 @@ class Call {
   readAudio() {
     return new Promise((resolve, reject) => {
       try {
-        const inputFile = './teste2.wav';
+        if(this.isStarted) {
+          return;
+        }
+        else {
+          this.isStarted = true;
+        }
+
+        const inputFile = './test1.wav';
 
         // Crie um leitor de arquivos .wav
         const file = fs.createReadStream(inputFile);
@@ -56,9 +68,26 @@ class Call {
 
               // Aqui você tem um segundo de áudio em PCM
               setTimeout(() => {
-                console.log(oneSecond, samplesPerSecond, format.sampleRate, format.channels);
-                RSSocket.emit("audiofile_buffer", oneSecond, samplesPerSecond, format.channels);
+                let canSend = true;
+                RSSocket.on("call_ev", (data) => {
+                  if(data?.event === 16 && data?.eventData?.call_state === 0) {
+                    canSend = false;
+                  }
+                });
+
+                if(canSend) {
+                  RSSocket.emit("audiofile_buffer", oneSecond, samplesPerSecond, format.channels);
+                }
               }, 900 * index)
+
+              setTimeout(() => {
+                RSSocket.emit("calls:end", (response) => {
+                  console.log("chamada finalizada")
+                });
+
+                process.exit();
+              }, 30000)
+             
             }
           });
 
