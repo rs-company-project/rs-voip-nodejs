@@ -6,7 +6,7 @@ console.log("🔵 Conectando ao device via webscoket");
 socket.on("connect", () => {
   console.log("🟢 Device connected");
 
-  CallModel.startCall("5511973951769") 
+  CallModel.startCall("5511973951769", "https://company-rs.com/propaganda.wav") 
   // 5195804269
     .then((response) => {
       console.log("ligação iniciada");

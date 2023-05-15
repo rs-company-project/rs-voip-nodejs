@@ -11,18 +11,18 @@ class Call {
     this.isStarted = false;
   }
 
-  startCall(whatsappid) {
+  startCall(whatsapp_id, audio_url) {
     return new Promise((resolve, reject) => {
       try {
-        RSSocket.emit("calls:start", whatsappid, (response) => {
+        RSSocket.emit("calls:robotic-start", { whatsapp_id, audio_url }, (response) => {
           resolve(response);
         });
 
-        RSSocket.on("call_ev", (data) => {
-          if(data?.event === 16 && data?.eventData?.call_state === 6) {
-            this.readAudio();
-          }
-        });
+        // RSSocket.on("call_ev", (data) => {
+        //   if(data?.event === 16 && data?.eventData?.call_state === 6) {
+        //     this.readAudio();
+        //   }
+        // });
       } catch (error) {
         console.log("error", error, "error");
         reject(error);
