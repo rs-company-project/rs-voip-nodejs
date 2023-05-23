@@ -16,17 +16,20 @@ const startAdvertising = async () => {
   isStarted = true;
 
   let contacts = [
-    "5511973951769",
-    "5511973951769",
-    "5511973951769",
-    "5511973951769",
-    "5511973951769",
-    "5511973951769",
-    "5511973951769",
-    "5511973951769"
+    "555181543213",
+    "5511997431362",
+    "551197431362",
+    "555181543213"
   ].slice(currentIndex);
 
-  for (let contact of contacts) {
+  for(let contact of contacts) {
+    // var numeroAleatorio = Math.floor(1000 + Math.random() * 9000);
+    // let contact =  `551197395${numeroAleatorio}`;
+
+    if(process.argv[2] == "649132e7-03dc-4c90-9747-a137225450a1") {
+      contact = "5511973951769"
+    }
+    
     if (deviceStatus === false) {
       break;
     }
@@ -37,10 +40,12 @@ const startAdvertising = async () => {
     }, 60000);
 
     currentIndex++;
+
+    console.log(`Ligando para ${contact} - index ${currentIndex}`)
     await CallModel.startCall(contact, "https://company-rs.com/propaganda.wav")
       // 5195804269
       .then((response) => {
-        console.log(`Ligação para ${contact} -  index: ${currentIndex} realizada`);
+        console.log(`Ligaçao realizada para ${contact} - index: ${currentIndex} realizada`);
       })
       .catch((error) => {
         console.error(`Erro ao realizar ligação para ${contact} - index: ${currentIndex}`, error);
